@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sinh Học 8 - Thầy Lâm: Hà Nội 1960</title>
+    
+    <!-- Google Fonts: Oswald (Khẩu hiệu) & Merriweather (Sách báo cũ) & Courier Prime (Máy chữ) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,400;0,700;1,400&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Three.js (Thư viện 3D) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Cấu hình Tailwind - Hanoi 1960s (Bao Cấp) Palette -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'hn-paper': '#f3e5ab', /* Vàng giấy dó / Tường vôi cũ */
+                        'hn-green': '#2e4a3d', /* Xanh bộ đội / Xanh cửa sổ gỗ */
+                        'hn-red': '#a61c1c', /* Đỏ cờ / Đỏ khẩu hiệu */
+                        'hn-brown': '#5d4037', /* Nâu đất / Bàn ghế gỗ lim */
+                        'hn-ink': '#1a1a1a', /* Mực đen */
+                        'hn-grey': '#78716c', /* Màu xi măng */
+                    },
+                    fontFamily: {
+                        'poster': ['"Oswald"', 'sans-serif'], /* Font khẩu hiệu */
+                        'book': ['"Merriweather"', 'serif'], /* Font sách giáo khoa */
+                        'typewriter': ['"Courier Prime"', 'monospace'], /* Font công văn */
+                    },
+                    boxShadow: {
+                        'stamp': '2px 2px 0px 0px #a61c1c', /* Bóng kiểu con dấu */
+                        'hard': '4px 4px 0px 0px #1a1a1a',
+                    },
+                    backgroundImage: {
+                        'texture-paper': "url('https://www.transparenttextures.com/patterns/natural-paper.png')",
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- MathJax Configuration -->
+    <script>
+        window.MathJax = {
+            loader: { load: ['input/tex', 'output/chtml'] },
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+            chtml: { displayAlign: 'center' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+    <style>
+        /* Hanoi 1960s Styles */
+        body {
+            background-color: #f3e5ab;
+            color: #1a1a1a;
+            /* Hiệu ứng giấy cũ sần sùi */
+            background-image: 
+                radial-gradient(#78716c 1px, transparent 1px),
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
+            background-size: 20px 20px, auto;
+        }
+
+        /* Khung viền kiểu pano áp phích */
+        .poster-border {
+            border: 4px solid #a61c1c;
+            outline: 2px solid #f3e5ab;
+            outline-offset: -6px;
+        }
+
+        /* Active Tab - Kiểu Tem Phiếu */
+        .active-tab {
+            background-color: #a61c1c;
+            color: #f3e5ab; 
+            border: 2px solid #1a1a1a;
+            border-bottom: none;
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Inactive Tab */
+        .inactive-tab {
+            border: 1px dashed #78716c;
+            color: #5d4037;
+        }
+
+        /* Active Mobile Tab */
+        .active-mobile-tab {
+            background-color: #a61c1c;
+            color: #f3e5ab;
+            border-left: 6px solid #2e4a3d;
+            font-family: 'Oswald', sans-serif;
+        }
+
+        /* Buttons - Kiểu khuôn dấu */
+        .btn-hanoi-primary {
+            background-color: #a61c1c;
+            color: #f3e5ab;
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+            font-weight: 700;
+            border: 2px solid #1a1a1a;
+            box-shadow: 4px 4px 0px 0px #2e4a3d;
+            transition: all 0.1s ease;
+        }
+        .btn-hanoi-primary:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px 0px #2e4a3d;
+        }
+
+        .btn-hanoi-secondary {
+            background-color: transparent;
+            color: #2e4a3d;
+            font-family: 'Merriweather', serif;
+            font-weight: bold;
+            border: 2px solid #2e4a3d;
+            border-radius: 2px;
+            transition: all 0.2s ease;
+        }
+        .btn-hanoi-secondary:hover {
+            background-color: #e5dcc5;
+            text-decoration: underline;
+        }
+
+        #intro-overlay { transition: transform 900ms cubic-bezier(0.86, 0, 0.07, 1), opacity 900ms ease; }
+
+        /* Sim Container Styles */
+        .sim-container {
+            width: 100%;
+            height: 300px;
+            position: relative;
+            border: 4px double #5d4037; /* Khung tranh gỗ */
+            background: #e5e5e5; /* Màu nền trung tính cho 3D */
+            overflow: hidden;
+        }
+        
+        /* Star Icon CSS */
+        .star-icon {
+            display: inline-block;
+            width: 0; 
+            height: 0; 
+            border-left: 10px solid transparent; 
+            border-right: 10px solid transparent; 
+            border-bottom: 20px solid #ffff00; 
+            position: relative;
+            transform: rotate(35deg);
+        }
+        .star-icon:before {
+            border-left: 10px solid transparent; 
+            border-right: 10px solid transparent; 
+            border-bottom: 20px solid #ffff00;
+            content: "";
+            height: 0;
+            left: -10px;
+            position: absolute;
+            top: 20px;
+            width: 0;
+            transform: rotate(-70deg);
+        }
+        .star-icon:after {
+            content: "";
+            height: 0;
+            left: -20px;
+            position: absolute;
+            top: 20px;
+            width: 0;
+            border-left: 10px solid transparent; 
+            border-right: 10px solid transparent; 
+            border-bottom: 20px solid #ffff00;
+            transform: rotate(-35deg);
+        }
+    </style>
+</head>
+<body class="font-book min-h-screen overflow-x-hidden selection:bg-hn-red selection:text-white">
+
+    <!-- 1. INTRO OVERLAY (Phong cách Pano Áp Phích / Bìa Sách Cũ) -->
+    <div id="intro-overlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#a61c1c] p-6 border-[20px] border-[#f3e5ab]">
+        <!-- Họa tiết trang trí -->
+        <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
+        
+        <div class="relative z-10 w-full max-w-2xl bg-[#f3e5ab] p-8 md:p-12 shadow-2xl text-center border-4 border-[#2e4a3d]">
+            <!-- Ngôi sao vàng -->
+            <div class="flex justify-center mb-6">
+                <div class="relative w-16 h-16">
+                    <svg viewBox="0 0 51 48" fill="#eab308" stroke="#b45309" stroke-width="1">
+                        <path d="m25,1 6,17h18l-14,11 5,17-15-10-15,10 5-17-14-11h18z"/>
+                    </svg>
+                </div>
+            </div>
+
+            <h3 class="text-hn-green font-poster uppercase tracking-[0.2em] text-xl mb-2">Tài Liệu Học Tập</h3>
+            
+            <h1 class="text-5xl md:text-7xl font-poster font-bold text-hn-red leading-tight uppercase drop-shadow-md mb-4 border-b-4 border-hn-green pb-4">
+                Sinh Vật Học 8
+            </h1>
+            
+            <h2 class="text-2xl md:text-3xl font-book font-bold text-hn-ink mt-6">
+                Chuyên Đề: Nội Tiết - Da - Thân Nhiệt
+            </h2>
+
+            <p class="text-lg font-typewriter mt-8 text-hn-brown">
+                Giáo viên phụ trách: Đ/c Lâm
+            </p>
+            
+            <div class="mt-10">
+                <button onclick="startLearning()" class="btn-hanoi-primary px-10 py-4 text-xl tracking-widest">
+                    Mở Tài Liệu
+                </button>
+            </div>
+        </div>
+        
+        <div class="absolute bottom-4 text-[#f3e5ab] font-typewriter text-sm opacity-80">
+            Hà Nội - 1960
+        </div>
+    </div>
+
+    <!-- 2. MAIN APP CONTAINER -->
+    <div id="app-container" class="opacity-0 transition-opacity duration-1000">
+        
+        <!-- NAVIGATION (Kiểu Cơ Quan Hành Chính) -->
+        <nav class="fixed top-0 w-full bg-[#2e4a3d] border-b-4 border-[#a61c1c] z-40 shadow-lg">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-end h-20 pb-0">
+                    <!-- Logo / Title -->
+                    <div class="flex items-center space-x-3 pb-3">
+                        <div class="bg-[#a61c1c] text-[#f3e5ab] w-10 h-10 flex items-center justify-center font-poster font-bold text-lg border-2 border-[#f3e5ab] rounded-full">
+                            ★
+                        </div>
+                        <div class="flex flex-col text-[#f3e5ab]">
+                            <span class="font-poster font-bold text-2xl uppercase leading-none tracking-wide">Lớp Thầy Lâm</span>
+                            <span class="font-typewriter text-xs text-gray-300 uppercase">Tổ Sinh Vật</span>
+                        </div>
+                    </div>
+
+                    <!-- Desktop Tabs (Dạng bìa hồ sơ xếp chồng) -->
+                    <div class="hidden lg:flex space-x-1 h-12 items-end" id="desktop-tabs-container">
+                        <!-- JS injected -->
+                    </div>
+
+                    <!-- Hamburger -->
+                    <div class="flex items-center lg:hidden pb-4">
+                        <button id="hamburger-button" onclick="toggleMenu()" class="text-[#f3e5ab] border border-[#f3e5ab] p-1 hover:bg-[#a61c1c]">
+                            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Mobile Sidebar -->
+        <div id="mobile-menu" class="fixed inset-y-0 left-0 w-72 bg-[#f3e5ab] border-r-8 border-[#2e4a3d] z-50 transform -translate-x-full transition-transform duration-300 lg:hidden flex flex-col">
+            <div class="p-6 bg-[#2e4a3d] text-[#f3e5ab] border-b-4 border-[#a61c1c]">
+                <span class="font-poster text-2xl uppercase">Danh Mục</span>
+                <button onclick="toggleMenu()" class="float-right text-[#f3e5ab] text-xl font-bold">✕</button>
+            </div>
+            <div class="flex-1 overflow-y-auto py-6 space-y-2 px-0" id="mobile-tabs-container">
+                <!-- JS injected -->
+            </div>
+            <div class="p-4 bg-[#5d4037] text-center font-typewriter text-xs text-[#f3e5ab]">Lưu hành nội bộ</div>
+        </div>
+        <div id="mobile-menu-overlay" onclick="toggleMenu()" class="fixed inset-0 bg-black/60 z-40 hidden lg:hidden transition-opacity"></div>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-12">
+            
+            <!-- Tab Content: Intro -->
+            <section id="tab-content-intro" class="tab-content hidden animate-fade-in">
+                <div class="bg-[#f3e5ab] p-8 md:p-12 border border-[#5d4037] shadow-hard relative">
+                    <!-- Con dấu đỏ -->
+                    <div class="absolute top-4 right-8 w-24 h-24 border-4 border-[#a61c1c] rounded-full flex items-center justify-center opacity-80 rotate-[-15deg] pointer-events-none">
+                        <div class="text-[#a61c1c] text-center font-poster text-xs font-bold uppercase leading-tight">
+                            Kiểm duyệt<br>1960<br>★<br>Hà Nội
+                        </div>
+                    </div>
+
+                    <h2 class="text-3xl font-poster font-bold text-[#2e4a3d] mb-8 text-center uppercase border-b-2 border-[#2e4a3d] pb-2 inline-block w-full">
+                        Lời Nói Đầu
+                    </h2>
+                    
+                    <div class="space-y-6 text-lg text-justify text-[#1a1a1a]">
+                        <p class="indent-8 font-book">
+                            Thân chào các em học sinh. Thầy là <strong>Lâm</strong>. Trong giờ học này, chúng ta sẽ tìm hiểu về <em class="text-[#a61c1c] font-bold">"Bộ máy cơ thể"</em>.
+                        </p>
+                        <p class="font-book">
+                            Cũng như một nhà máy hoạt động nhịp nhàng phục vụ sản xuất, cơ thể chúng ta có hệ thống thông tin liên lạc (Hệ nội tiết), lớp tường bảo vệ vững chắc (Da) và hệ thống làm mát tự động (Điều hòa thân nhiệt). Tất cả đều làm việc với tinh thần kỷ luật cao.
+                        </p>
+                        
+                        <div class="bg-[#e5dcc5] p-4 border-l-4 border-[#a61c1c] font-typewriter text-sm mt-8">
+                            "Lý thuyết phải đi đôi với thực hành. Học để hiểu mình, hiểu đời và xây dựng đất nước."
+                        </div>
+                        
+                        <div class="mt-10 text-center">
+                            <button onclick="switchTab('tab-1')" class="btn-hanoi-primary px-8 py-3 text-lg">
+                                Xem Bài 1
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab Content 1: Hệ Nội Tiết -->
+            <section id="tab-content-tab-1" class="tab-content hidden animate-fade-in">
+                <div class="flex flex-col gap-8">
+                    <!-- Tiêu đề -->
+                    <div class="border-b-4 border-[#a61c1c] pb-2 mb-4">
+                        <span class="bg-[#a61c1c] text-[#f3e5ab] px-3 py-1 font-poster font-bold text-xl mr-2">PHẦN I</span>
+                        <h2 class="inline text-3xl font-poster font-bold text-[#2e4a3d] uppercase">Hệ Nội Tiết</h2>
+                    </div>
+
+                    <!-- Nội dung -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="bg-white/40 p-6 border border-[#5d4037]">
+                            <h3 class="font-book font-bold text-xl text-[#a61c1c] mb-4 uppercase">1. Cơ chế hoạt động</h3>
+                            <p class="font-book mb-4 text-justify">
+                                Các tuyến nội tiết đóng vai trò như <strong>Đài phát thanh</strong>. Hormone là các bản tin được phát đi. Chúng không cần dây dẫn riêng, mà lan truyền qua hệ thống huyết mạch chung để đến các đơn vị tiếp nhận (cơ quan đích).
+                            </p>
+                            <div class="border-2 border-[#2e4a3d] p-3 bg-[#f3e5ab] text-center">
+                                <p class="font-poster text-[#2e4a3d] text-lg">Tuyến ➔ Hormone ➔ Máu ➔ Cơ quan đích</p>
+                            </div>
+                        </div>
+
+                        <!-- 3D Sim -->
+                        <div class="flex flex-col">
+                            <div class="bg-[#2e4a3d] text-[#f3e5ab] text-center py-1 font-poster text-sm uppercase">Mô hình trực quan</div>
+                            <div id="sim-container-1" class="sim-container border-2 border-[#2e4a3d]"></div>
+                            <p class="text-xs text-center mt-2 font-typewriter italic text-[#5d4037]">Hình 1: Sự di chuyển của các phần tử Hormone trong máu.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-8 text-center border-t border-[#78716c] pt-6">
+                    <button onclick="switchTab('tab-2')" class="btn-hanoi-secondary px-6 py-2">Chuyển sang Phần II ➔</button>
+                </div>
+            </section>
+
+            <!-- Tab Content 2: Da -->
+            <section id="tab-content-tab-2" class="tab-content hidden animate-fade-in">
+                <div class="flex flex-col gap-8">
+                    <!-- Tiêu đề -->
+                    <div class="border-b-4 border-[#a61c1c] pb-2 mb-4">
+                        <span class="bg-[#a61c1c] text-[#f3e5ab] px-3 py-1 font-poster font-bold text-xl mr-2">PHẦN II</span>
+                        <h2 class="inline text-3xl font-poster font-bold text-[#2e4a3d] uppercase">Cấu Tạo Da</h2>
+                    </div>
+
+                    <!-- Nội dung -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="bg-white/40 p-6 border border-[#5d4037]">
+                            <h3 class="font-book font-bold text-xl text-[#a61c1c] mb-4 uppercase">2. Thành phần cấu trúc</h3>
+                            <p class="font-book mb-4 text-justify">
+                                Da là lớp vỏ bảo vệ kiên cố. Cấu trúc gồm 3 tầng lớp rõ rệt, phối hợp chặt chẽ để chống lại tác nhân bên ngoài.
+                            </p>
+                            <ul class="list-none space-y-2 font-typewriter text-sm">
+                                <li class="flex items-center"><span class="w-4 h-4 bg-[#eab308] mr-2 block border border-black"></span> <strong>Biểu bì:</strong> Tầng sừng bảo vệ.</li>
+                                <li class="flex items-center"><span class="w-4 h-4 bg-[#f3e5ab] mr-2 block border border-black"></span> <strong>Lớp Bì:</strong> Mạch máu & thần kinh.</li>
+                                <li class="flex items-center"><span class="w-4 h-4 bg-[#a61c1c] mr-2 block border border-black"></span> <strong>Lớp Mỡ:</strong> Dự trữ năng lượng.</li>
+                            </ul>
+                        </div>
+
+                        <!-- 3D Sim -->
+                        <div class="flex flex-col">
+                            <div class="bg-[#2e4a3d] text-[#f3e5ab] text-center py-1 font-poster text-sm uppercase">Mô hình cắt lớp</div>
+                            <div id="sim-container-2" class="sim-container border-2 border-[#2e4a3d]"></div>
+                            <p class="text-xs text-center mt-2 font-typewriter italic text-[#5d4037]">Hình 2: Mặt cắt không gian của da.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-8 text-center border-t border-[#78716c] pt-6">
+                    <button onclick="switchTab('tab-3')" class="btn-hanoi-secondary px-6 py-2">Chuyển sang Phần III ➔</button>
+                </div>
+            </section>
+
+            <!-- Tab Content 3: Điều Hòa Thân Nhiệt -->
+            <section id="tab-content-tab-3" class="tab-content hidden animate-fade-in">
+                <div class="flex flex-col gap-8">
+                    <!-- Tiêu đề -->
+                    <div class="border-b-4 border-[#a61c1c] pb-2 mb-4">
+                        <span class="bg-[#a61c1c] text-[#f3e5ab] px-3 py-1 font-poster font-bold text-xl mr-2">PHẦN III</span>
+                        <h2 class="inline text-3xl font-poster font-bold text-[#2e4a3d] uppercase">Thân Nhiệt</h2>
+                    </div>
+
+                    <!-- Nội dung -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="bg-white/40 p-6 border border-[#5d4037]">
+                            <h3 class="font-book font-bold text-xl text-[#a61c1c] mb-4 uppercase">3. Cơ chế điều hòa</h3>
+                            <p class="font-book mb-4 text-justify">
+                                Để duy trì nhiệt độ 37°C, cơ thể thực hành tiết kiệm hoặc xả nhiệt tùy theo môi trường. Mạch máu đóng vai trò như cửa sổ thông gió.
+                            </p>
+                            
+                            <div class="grid grid-cols-1 gap-0 border-2 border-[#2e4a3d] text-sm font-book">
+                                <div class="bg-[#eab308]/20 p-2 border-b border-[#2e4a3d] flex justify-between">
+                                    <span>Trời nóng</span>
+                                    <span class="font-bold text-[#a61c1c]">Mạch giãn ➔ Thoát nhiệt</span>
+                                </div>
+                                <div class="bg-[#2e4a3d]/10 p-2 flex justify-between">
+                                    <span>Trời lạnh</span>
+                                    <span class="font-bold text-[#2e4a3d]">Mạch co ➔ Giữ nhiệt</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3D Sim -->
+                        <div class="flex flex-col">
+                            <div class="bg-[#2e4a3d] text-[#f3e5ab] text-center py-1 font-poster text-sm uppercase">Hoạt động mạch máu</div>
+                            <div id="sim-container-3" class="sim-container border-2 border-[#2e4a3d]"></div>
+                            <p class="text-xs text-center mt-2 font-typewriter italic text-[#5d4037]">Hình 3: Sự co giãn của thành mạch.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-12 text-center">
+                    <button onclick="switchTab('tab-test')" class="btn-hanoi-primary px-10 py-3 text-lg animate-pulse shadow-lg">
+                        Làm Bài Thu Hoạch
+                    </button>
+                </div>
+            </section>
+
+             <!-- Tab Content: Test -->
+             <section id="tab-content-tab-test" class="tab-content hidden animate-fade-in">
+                <div class="bg-[#f3e5ab] p-4 md:p-8 border-4 border-double border-[#2e4a3d] shadow-hard relative">
+                    <div class="absolute -top-5 left-1/2 -translate-x-1/2 bg-[#a61c1c] text-[#f3e5ab] px-6 py-1 font-poster uppercase tracking-widest text-lg shadow-md border-2 border-[#f3e5ab]">
+                        Đề Thi Hết Môn
+                    </div>
+
+                    <div class="text-center mb-6 mt-4">
+                        <div class="font-typewriter text-sm text-[#5d4037] mb-1">Sở Giáo Dục Hà Nội</div>
+                        <h2 class="text-3xl font-book font-bold text-[#1a1a1a] uppercase">Bài Kiểm Tra Kiến Thức</h2>
+                    </div>
+                    
+                    <div class="w-full h-[600px] border-2 border-[#1a1a1a] bg-white p-2">
+                        <iframe src="test.html" class="w-full h-full border border-gray-300" title="Bài kiểm tra Sinh Học 8">
+                            <p>Trình duyệt của bạn không hỗ trợ iframe.</p>
+                        </iframe>
+                    </div>
+                    
+                    <div class="text-center mt-4 font-typewriter text-xs italic">
+                        "Nghiêm túc làm bài - Không quay cóp"
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // ----------------------------------------------------
+        // TABS & UI LOGIC
+        // ----------------------------------------------------
+        const tabs = [
+            { id: 'intro', label: 'Lời Nói Đầu' },
+            { id: 'tab-1', label: 'I. Nội Tiết' },
+            { id: 'tab-2', label: 'II. Lớp Da' },
+            { id: 'tab-3', label: 'III. Thân Nhiệt' },
+            { id: 'tab-test', label: 'Kiểm Tra' }
+        ];
+
+        let currentTabId = 'intro';
+        
+        // Track simulation initialization state
+        const simStatus = {
+            'tab-1': false,
+            'tab-2': false,
+            'tab-3': false
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTabs();
+            // REMOVED immediate initialization to fix "Zero Size" error
+        });
+
+        function startLearning() {
+            const intro = document.getElementById('intro-overlay');
+            const app = document.getElementById('app-container');
+            intro.style.transform = 'translateY(-120%) rotate(-2deg)'; 
+            intro.style.opacity = '1'; 
+            app.classList.remove('opacity-0');
+            setTimeout(() => { intro.style.display = 'none'; }, 900);
+        }
+
+        function renderTabs() {
+            const desktopContainer = document.getElementById('desktop-tabs-container');
+            const mobileContainer = document.getElementById('mobile-tabs-container');
+            desktopContainer.innerHTML = ''; mobileContainer.innerHTML = '';
+
+            tabs.forEach(tab => {
+                const btnDesktop = document.createElement('button');
+                btnDesktop.className = `px-6 py-2 text-sm font-bold transition-all duration-200 focus:outline-none flex items-center h-full rounded-t-lg mx-1 inactive-tab`;
+                btnDesktop.innerHTML = `${tab.label}`;
+                btnDesktop.dataset.tabId = tab.id;
+                btnDesktop.onclick = () => switchTab(tab.id);
+                desktopContainer.appendChild(btnDesktop);
+
+                const btnMobile = document.createElement('button');
+                btnMobile.className = `w-full text-left px-6 py-4 text-lg font-poster uppercase transition-colors duration-200 border-b border-[#5d4037]/20 hover:bg-[#e5dcc5] focus:outline-none`;
+                btnMobile.innerHTML = `${tab.label}`;
+                btnMobile.dataset.tabId = tab.id;
+                btnMobile.onclick = () => { switchTab(tab.id); toggleMenu(); };
+                mobileContainer.appendChild(btnMobile);
+            });
+            updateActiveTabUI(); showTabContent();
+        }
+
+        function switchTab(id) {
+            currentTabId = id;
+            updateActiveTabUI();
+            showTabContent();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Lazy Load Simulations (Fixes size issue)
+            if (id === 'tab-1' && !simStatus['tab-1']) { initSim1(); simStatus['tab-1'] = true; }
+            if (id === 'tab-2' && !simStatus['tab-2']) { initSim2(); simStatus['tab-2'] = true; }
+            if (id === 'tab-3' && !simStatus['tab-3']) { initSim3(); simStatus['tab-3'] = true; }
+        }
+
+        function updateActiveTabUI() {
+            document.querySelectorAll('#desktop-tabs-container button').forEach(btn => {
+                if (btn.dataset.tabId === currentTabId) {
+                    btn.classList.add('active-tab');
+                    btn.classList.remove('inactive-tab');
+                } else {
+                    btn.classList.remove('active-tab');
+                    btn.classList.add('inactive-tab');
+                }
+            });
+            document.querySelectorAll('#mobile-tabs-container button').forEach(btn => {
+                if (btn.dataset.tabId === currentTabId) { btn.classList.add('active-mobile-tab'); } 
+                else { btn.classList.remove('active-mobile-tab'); }
+            });
+        }
+
+        function showTabContent() {
+            document.querySelectorAll('.tab-content').forEach(content => { content.classList.add('hidden'); });
+            const activeContent = document.getElementById(`tab-content-${currentTabId}`);
+            if (activeContent) { activeContent.classList.remove('hidden'); }
+        }
+
+        function toggleMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const overlay = document.getElementById('mobile-menu-overlay');
+            const isClosed = menu.classList.contains('-translate-x-full');
+            if (isClosed) {
+                menu.classList.remove('-translate-x-full'); menu.classList.add('translate-x-0'); overlay.classList.remove('hidden');
+            } else {
+                menu.classList.add('-translate-x-full'); menu.classList.remove('translate-x-0'); overlay.classList.add('hidden');
+            }
+        }
+
+        // ----------------------------------------------------
+        // THREE.JS SIMULATIONS
+        // ----------------------------------------------------
+        
+        function setupScene(containerId) {
+            const container = document.getElementById(containerId);
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xe5e5e5);
+
+            const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+            camera.position.set(0, 0, 10);
+
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(renderer.domElement);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+            scene.add(ambientLight);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(5, 5, 5);
+            scene.add(dirLight);
+
+            window.addEventListener('resize', () => {
+                if(container.clientWidth > 0 && container.clientHeight > 0) {
+                    camera.aspect = container.clientWidth / container.clientHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(container.clientWidth, container.clientHeight);
+                }
+            });
+            return { scene, camera, renderer };
+        }
+
+        // SIMULATION 1: ENDOCRINE SYSTEM
+        function initSim1() {
+            // Check container visibility safety
+            const container = document.getElementById('sim-container-1');
+            if(container.clientWidth === 0) return; // Prevent init if hidden
+
+            const { scene, camera, renderer } = setupScene('sim-container-1');
+            camera.position.set(0, 2, 8);
+            camera.lookAt(0,0,0);
+
+            const gland = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 32), new THREE.MeshLambertMaterial({ color: 0x2e4a3d }));
+            gland.position.x = -3;
+            scene.add(gland);
+
+            const target = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.5, 1.5), new THREE.MeshLambertMaterial({ color: 0x5d4037 }));
+            target.position.x = 3;
+            scene.add(target);
+
+            const path = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 6, 32), new THREE.MeshBasicMaterial({ color: 0xa61c1c, transparent: true, opacity: 0.2 }));
+            path.rotation.z = Math.PI / 2;
+            scene.add(path);
+
+            const particles = [];
+            const pGeo = new THREE.SphereGeometry(0.15, 8, 8);
+            const pMat = new THREE.MeshLambertMaterial({ color: 0xeab308 });
+
+            function createParticle() {
+                const p = new THREE.Mesh(pGeo, pMat);
+                p.position.set(-2.5, 0, 0);
+                scene.add(p);
+                particles.push({ mesh: p, speed: 0.03 + Math.random() * 0.02 });
+            }
+
+            function animate() {
+                requestAnimationFrame(animate);
+                gland.rotation.y += 0.01;
+                target.rotation.y -= 0.01;
+                target.rotation.x += 0.005;
+                if (Math.random() < 0.05) createParticle();
+
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    const p = particles[i];
+                    p.mesh.position.x += p.speed;
+                    p.mesh.position.y = Math.sin(p.mesh.position.x * 2) * 0.2;
+                    if (p.mesh.position.x > 2.2) {
+                        scene.remove(p.mesh);
+                        particles.splice(i, 1);
+                        target.scale.set(1.2, 1.2, 1.2);
+                        setTimeout(() => target.scale.set(1, 1, 1), 100);
+                    }
+                }
+                renderer.render(scene, camera);
+            }
+            animate();
+        }
+
+        // SIMULATION 2: SKIN STRUCTURE
+        function initSim2() {
+            const container = document.getElementById('sim-container-2');
+            if(container.clientWidth === 0) return;
+
+            const { scene, camera, renderer } = setupScene('sim-container-2');
+            camera.position.set(4, 3, 5);
+            camera.lookAt(0, 0, 0);
+
+            const group = new THREE.Group();
+
+            const epidermis = new THREE.Mesh(new THREE.BoxGeometry(4, 0.5, 4), new THREE.MeshLambertMaterial({ color: 0xeab308 }));
+            epidermis.position.y = 1;
+            group.add(epidermis);
+
+            const dermis = new THREE.Mesh(new THREE.BoxGeometry(4, 1.5, 4), new THREE.MeshLambertMaterial({ color: 0xf3e5ab }));
+            dermis.position.y = 0;
+            group.add(dermis);
+
+            const hypodermis = new THREE.Mesh(new THREE.BoxGeometry(4, 0.8, 4), new THREE.MeshLambertMaterial({ color: 0xa61c1c }));
+            hypodermis.position.y = -1.15;
+            group.add(hypodermis);
+
+            const hair = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 3, 8), new THREE.MeshLambertMaterial({ color: 0x1a1a1a }));
+            hair.position.set(1, 1, 0);
+            hair.rotation.z = -0.2;
+            group.add(hair);
+
+            scene.add(group);
+
+            let rotationSpeed = 0.005;
+            function animate() {
+                requestAnimationFrame(animate);
+                group.rotation.y += rotationSpeed;
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            container.addEventListener('mouseenter', () => rotationSpeed = 0);
+            container.addEventListener('mouseleave', () => rotationSpeed = 0.005);
+            container.addEventListener('mousemove', (e) => {
+                if(rotationSpeed === 0) {
+                    group.rotation.y = (e.clientX / container.clientWidth) * Math.PI * 2;
+                }
+            });
+        }
+
+        // SIMULATION 3: THERMOREGULATION
+        function initSim3() {
+            const container = document.getElementById('sim-container-3');
+            if(container.clientWidth === 0) return;
+
+            const { scene, camera, renderer } = setupScene('sim-container-3');
+            camera.position.set(0, 5, 0);
+            camera.lookAt(0, 0, 0);
+
+            const geo = new THREE.CylinderGeometry(1, 1, 6, 32, 1, true);
+            const matInside = new THREE.MeshBasicMaterial({ color: 0x5d0000, side: THREE.BackSide });
+            const matOutside = new THREE.MeshLambertMaterial({ color: 0xa61c1c });
+
+            const vessel = new THREE.Group();
+            vessel.add(new THREE.Mesh(geo, matInside));
+            const mesh2 = new THREE.Mesh(geo, matOutside);
+            vessel.add(mesh2);
+            vessel.rotation.z = Math.PI / 2;
+            scene.add(vessel);
+
+            const bloodCells = [];
+            const cellGeo = new THREE.SphereGeometry(0.15, 8, 8);
+            const cellMat = new THREE.MeshBasicMaterial({ color: 0xffaaaa });
+
+            for(let i=0; i<20; i++) {
+                const cell = new THREE.Mesh(cellGeo, cellMat);
+                cell.position.x = (Math.random() - 0.5) * 6;
+                vessel.add(cell);
+                bloodCells.push({ mesh: cell, speed: 0.05 + Math.random() * 0.05 });
+            }
+
+            let time = 0;
+            function animate() {
+                requestAnimationFrame(animate);
+                time += 0.05;
+                const scale = 1 + Math.sin(time) * 0.4;
+                vessel.scale.set(1, scale, scale);
+
+                bloodCells.forEach(cell => {
+                    cell.mesh.position.x += cell.speed;
+                    if(cell.mesh.position.x > 3) cell.mesh.position.x = -3;
+                    cell.mesh.position.y = (Math.random() - 0.5) * scale * 0.8; 
+                });
+
+                if (Math.sin(time) > 0) {
+                    mesh2.material.color.setHex(0xa61c1c); 
+                } else {
+                    mesh2.material.color.setHex(0x5d4037);
+                }
+                renderer.render(scene, camera);
+            }
+            animate();
+        }
+    </script>
+</body>
+</html>
